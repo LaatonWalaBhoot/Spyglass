@@ -11,155 +11,119 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.mentions
 
-package com.linkedin.android.spyglass.mentions;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.Editable;
-import android.text.TextPaint;
-import android.text.style.ClickableSpan;
-import android.view.View;
-import android.widget.EditText;
-import androidx.annotation.NonNull;
-import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode;
-import com.linkedin.android.spyglass.ui.MentionsEditText;
+import android.os.Parcel
+import android.os.Parcelable
+import android.text.TextPaint
+import android.text.style.ClickableSpan
+import android.view.View
+import com.linkedin.android.spyglass.mentions.Mentionable.MentionDisplayMode
+import com.linkedin.android.spyglass.ui.MentionsEditText
 
 /**
- * Class representing a spannable {@link Mentionable} in an {@link EditText}. This class is
- * specifically used by the {@link MentionsEditText}.
+ * Class representing a spannable [Mentionable] in an [EditText]. This class is
+ * specifically used by the [MentionsEditText].
  */
-public class MentionSpan extends ClickableSpan implements Parcelable {
+class MentionSpan : ClickableSpan, Parcelable {
+    @JvmField
+    val mention: Mentionable
+    private var config: MentionSpanConfig
 
-    private final Mentionable mention;
-    private MentionSpanConfig config;
+    @JvmField
+    var isSelected: Boolean = false
+    var displayMode: MentionDisplayMode = MentionDisplayMode.FULL
 
-    private boolean isSelected = false;
-    private MentionDisplayMode mDisplayMode = MentionDisplayMode.FULL;
-
-    public MentionSpan(@NonNull Mentionable mention) {
-        super();
-        this.mention = mention;
-        this.config = new MentionSpanConfig.Builder().build();
+    constructor(mention: Mentionable) : super() {
+        this.mention = mention
+        this.config = MentionSpanConfig.Builder().build()
     }
 
-    public MentionSpan(@NonNull Mentionable mention, @NonNull MentionSpanConfig config) {
-        super();
-        this.mention = mention;
-        this.config = config;
+    constructor(mention: Mentionable, config: MentionSpanConfig) : super() {
+        this.mention = mention
+        this.config = config
     }
 
-    @Override
-    public void onClick(@NonNull final View widget) {
-        if (!(widget instanceof MentionsEditText)) {
-            return;
+    override fun onClick(widget: View) {
+        if (widget !is MentionsEditText) {
+            return
         }
 
         // Get reference to the MentionsEditText
-        MentionsEditText editText = (MentionsEditText) widget;
-        Editable text = editText.getText();
-
-        if (text == null) {
-            return;
-        }
+        val editText = widget
+        val text = editText.text ?: return
 
         // Set cursor behind span in EditText
-        int newCursorPos = text.getSpanEnd(this);
-        editText.setSelection(newCursorPos);
+        val newCursorPos = text.getSpanEnd(this)
+        editText.setSelection(newCursorPos)
 
         // If we are going to select this span, deselect all others
-        boolean isSelected = isSelected();
+        val isSelected = isSelected
         if (!isSelected) {
-            editText.deselectAllSpans();
+            editText.deselectAllSpans()
         }
 
         // Toggle whether the view is selected
-        setSelected(!isSelected());
+        this.isSelected = !this.isSelected
 
         // Update the span (forces it to redraw)
-        editText.updateSpan(this);
+        editText.updateSpan(this)
     }
 
-    @Override
-    public void updateDrawState(@NonNull final TextPaint tp) {
-        if (isSelected()) {
-            tp.setColor(config.SELECTED_TEXT_COLOR);
-            tp.bgColor = config.SELECTED_TEXT_BACKGROUND_COLOR;
+    override fun updateDrawState(tp: TextPaint) {
+        if (isSelected) {
+            tp.color = config.SELECTED_TEXT_COLOR
+            tp.bgColor = config.SELECTED_TEXT_BACKGROUND_COLOR
         } else {
-            tp.setColor(config.NORMAL_TEXT_COLOR);
-            tp.bgColor = config.NORMAL_TEXT_BACKGROUND_COLOR;
+            tp.color = config.NORMAL_TEXT_COLOR
+            tp.bgColor = config.NORMAL_TEXT_BACKGROUND_COLOR
         }
-        tp.setUnderlineText(false);
+        tp.isUnderlineText = false
     }
 
-    @NonNull
-    public Mentionable getMention() {
-        return mention;
+    val displayString: String
+        get() = mention.getTextForDisplayMode(displayMode)
+
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public boolean isSelected() {
-        return isSelected;
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(config.NORMAL_TEXT_COLOR)
+        dest.writeInt(config.NORMAL_TEXT_BACKGROUND_COLOR)
+        dest.writeInt(config.SELECTED_TEXT_COLOR)
+        dest.writeInt(config.SELECTED_TEXT_BACKGROUND_COLOR)
+
+        dest.writeInt(displayMode.ordinal)
+        dest.writeInt(if (isSelected) 1 else 0)
+        dest.writeParcelable(mention, flags)
     }
 
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    constructor(`in`: Parcel) {
+        val normalTextColor = `in`.readInt()
+        val normalTextBackgroundColor = `in`.readInt()
+        val selectedTextColor = `in`.readInt()
+        val selectedTextBackgroundColor = `in`.readInt()
+        config = MentionSpanConfig(
+            normalTextColor, normalTextBackgroundColor,
+            selectedTextColor, selectedTextBackgroundColor
+        )
+
+        displayMode = MentionDisplayMode.entries[`in`.readInt()]
+        isSelected = `in`.readInt() == 1
+        mention = `in`.readParcelable(Mentionable::class.java.classLoader)!!
     }
 
-    @NonNull
-    public MentionDisplayMode getDisplayMode() {
-        return mDisplayMode;
-    }
+    companion object {
+        val CREATOR
+                : Parcelable.Creator<MentionSpan> = object : Parcelable.Creator<MentionSpan> {
+            override fun createFromParcel(`in`: Parcel): MentionSpan {
+                return MentionSpan(`in`)
+            }
 
-    public void setDisplayMode(@NonNull MentionDisplayMode mode) {
-        mDisplayMode = mode;
-    }
-
-    @NonNull
-    public String getDisplayString() {
-        return mention.getTextForDisplayMode(mDisplayMode);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(@NonNull final Parcel dest, int flags) {
-        dest.writeInt(config.NORMAL_TEXT_COLOR);
-        dest.writeInt(config.NORMAL_TEXT_BACKGROUND_COLOR);
-        dest.writeInt(config.SELECTED_TEXT_COLOR);
-        dest.writeInt(config.SELECTED_TEXT_BACKGROUND_COLOR);
-
-        dest.writeInt(getDisplayMode().ordinal());
-        dest.writeInt(isSelected() ? 1 : 0);
-        dest.writeParcelable(getMention(), flags);
-    }
-
-    public MentionSpan(@NonNull Parcel in) {
-        int normalTextColor = in.readInt();
-        int normalTextBackgroundColor = in.readInt();
-        int selectedTextColor = in.readInt();
-        int selectedTextBackgroundColor = in.readInt();
-        config = new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
-                                       selectedTextColor, selectedTextBackgroundColor);
-
-        mDisplayMode = MentionDisplayMode.values()[in.readInt()];
-        setSelected((in.readInt() == 1));
-        mention = in.readParcelable(Mentionable.class.getClassLoader());
-    }
-
-    public static final Parcelable.Creator<MentionSpan> CREATOR
-            = new Parcelable.Creator<MentionSpan>() {
-
-        @NonNull
-        public MentionSpan createFromParcel(@NonNull Parcel in) {
-            return new MentionSpan(in);
+            override fun newArray(size: Int): Array<MentionSpan> {
+                return arrayOfNulls(size)
+            }
         }
-
-        @NonNull
-        public MentionSpan[] newArray(int size) {
-            return new MentionSpan[size];
-        }
-    };
+    }
 }

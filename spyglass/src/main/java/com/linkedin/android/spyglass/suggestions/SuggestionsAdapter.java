@@ -118,7 +118,7 @@ public class SuggestionsAdapter extends BaseAdapter {
         }
 
         // Rebuild the list of suggestions in the appropriate order
-        String currentTokenString = source.getCurrentTokenString();
+        String currentTokenString = source.currentTokenString;
         synchronized (mLock) {
             mSuggestions.clear();
             List<Suggestible> suggestions = mSuggestionsListBuilder.buildSuggestions(mResultMap, currentTokenString);
@@ -156,7 +156,7 @@ public class SuggestionsAdapter extends BaseAdapter {
     private void hideSuggestionsIfNecessary(final @NonNull QueryToken currentQuery,
                                             final @NonNull TokenSource source) {
         String queryTS = currentQuery.getTokenString();
-        String currentTS = source.getCurrentTokenString();
+        String currentTS = source.currentTokenString;
         if (!isWaitingForResults(currentQuery) && queryTS != null && queryTS.equals(currentTS)) {
             mSuggestionsVisibilityManager.displaySuggestions(false);
         }

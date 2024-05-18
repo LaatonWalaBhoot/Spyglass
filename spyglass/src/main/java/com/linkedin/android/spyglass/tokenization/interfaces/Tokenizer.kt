@@ -11,58 +11,54 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.tokenization.interfaces
 
-package com.linkedin.android.spyglass.tokenization.interfaces;
-
-import androidx.annotation.NonNull;
-import android.text.Spanned;
+import android.text.Spanned
 
 /**
- * An interface representing a tokenizer. Similar to {@link android.widget.MultiAutoCompleteTextView.Tokenizer}, but
- * it operates on {@link Spanned} objects instead of {@link CharSequence} objects.
+ * An interface representing a tokenizer. Similar to [android.widget.MultiAutoCompleteTextView.Tokenizer], but
+ * it operates on [Spanned] objects instead of [CharSequence] objects.
  */
-public interface Tokenizer {
-
+interface Tokenizer {
     /**
      * Returns the start of the token that ends at offset cursor within text.
      *
-     * @param text   the {@link Spanned} to find the token in
+     * @param text   the [Spanned] to find the token in
      * @param cursor position of the cursor in text
      *
      * @return index of the first character in the token
      */
-    int findTokenStart(final @NonNull Spanned text, final int cursor);
+    fun findTokenStart(text: Spanned, cursor: Int): Int
 
     /**
      * Returns the end of the token that begins at offset cursor within text.
      *
-     * @param text   the {@link Spanned} to find the token in
+     * @param text   the [Spanned] to find the token in
      * @param cursor position of the cursor in text
      *
      * @return index after the last character in the token
      */
-    int findTokenEnd(final @NonNull Spanned text, final int cursor);
+    fun findTokenEnd(text: Spanned, cursor: Int): Int
 
     /**
      * Return true if the given text is a valid token (either explicit or implicit).
      *
-     * @param text  the {@link Spanned} to check for a valid token
-     * @param start index of the first character in the token (see {@link #findTokenStart(Spanned, int)})
-     * @param end   index after the last character in the token (see (see {@link #findTokenEnd(Spanned, int)})
+     * @param text  the [Spanned] to check for a valid token
+     * @param start index of the first character in the token (see [.findTokenStart])
+     * @param end   index after the last character in the token (see (see [.findTokenEnd])
      *
      * @return true if input is a valid mention
      */
-    boolean isValidMention(final @NonNull Spanned text, final int start, final int end);
+    fun isValidMention(text: Spanned, start: Int, end: Int): Boolean
 
     /**
      * Returns text, modified, to ensure that it ends with a token terminator if necessary.
      *
-     * @param text the given {@link Spanned} object to modify if necessary
+     * @param text the given [Spanned] object to modify if necessary
      *
      * @return the modified version of the text
      */
-    @NonNull
-    Spanned terminateToken(final @NonNull Spanned text);
+    fun terminateToken(text: Spanned): Spanned
 
     /**
      * Determines if given character is an explicit character according to the current settings of the tokenizer.
@@ -71,7 +67,7 @@ public interface Tokenizer {
      *
      * @return true if c is an explicit character
      */
-    boolean isExplicitChar(final char c);
+    fun isExplicitChar(c: Char): Boolean
 
     /**
      * Determines if given character is an word-breaking character according to the current settings of the tokenizer.
@@ -80,5 +76,5 @@ public interface Tokenizer {
      *
      * @return true if c is an word-breaking character
      */
-    boolean isWordBreakingChar(final char c);
+    fun isWordBreakingChar(c: Char): Boolean
 }

@@ -11,24 +11,22 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
-
-package com.linkedin.android.spyglass.suggestions.interfaces;
+package com.linkedin.android.spyglass.suggestions.interfaces
 
 /**
  * Interface for a class to handle when the suggestions are visible.
  */
-public interface SuggestionsVisibilityManager {
-
+interface SuggestionsVisibilityManager {
     /**
      * Displays or hides the mentions suggestions list.
      *
      * @param display whether the mentions suggestions should be displayed
      */
-    void displaySuggestions(boolean display);
+    fun displaySuggestions(display: Boolean)
 
     /**
      * @return true if the mention suggestions list is currently being displayed
      */
-    boolean isDisplayingSuggestions();
-
+    @JvmField
+    val isDisplayingSuggestions: Boolean
 }

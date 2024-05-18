@@ -11,86 +11,65 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
-
-package com.linkedin.android.spyglass.tokenization.impl;
-
-import androidx.annotation.NonNull;
+package com.linkedin.android.spyglass.tokenization.impl
 
 /**
- * Class used to configure various parsing options for the {@link WordTokenizer}. Instantiate using the
- * {@link WordTokenizerConfig.Builder} class.
+ * Class used to configure various parsing options for the [WordTokenizer]. Instantiate using the
+ * [WordTokenizerConfig.Builder] class.
  */
-public class WordTokenizerConfig {
-
-    @NonNull public final String LINE_SEPARATOR;
-
+class WordTokenizerConfig private constructor(
+    val LINE_SEPARATOR: String,
     // Number of characters required in a word before returning a mention suggestion starting with the word
     // Note: These characters are required to be either letters or digits
-    public int THRESHOLD;
-
+    var THRESHOLD: Int,
     // Max number of words to consider as keywords in a query
-    public int MAX_NUM_KEYWORDS;
-
+    var MAX_NUM_KEYWORDS: Int,
     // Characters to use as explicit mention indicators
-    @NonNull public final String EXPLICIT_CHARS;
-
+    val EXPLICIT_CHARS: String,
     // Characters to use to separate words
-    @NonNull public final String WORD_BREAK_CHARS;
-
-    private WordTokenizerConfig(final @NonNull String lineSeparator,
-                                final int threshold,
-                                final int maxNumKeywords,
-                                final @NonNull String explicitChars,
-                                final @NonNull String wordBreakChars) {
-        LINE_SEPARATOR = lineSeparator;
-        THRESHOLD = threshold;
-        MAX_NUM_KEYWORDS = maxNumKeywords;
-        EXPLICIT_CHARS = explicitChars;
-        WORD_BREAK_CHARS = wordBreakChars;
-    }
-
-    public static class Builder {
-
+    val WORD_BREAK_CHARS: String
+) {
+    class Builder {
         // Default values for configuration
-        private String lineSeparator = System.getProperty("line.separator");
-        private int threshold = 4;
-        private int maxNumKeywords = 1;
-        private String explicitChars = "@";
-        private String wordBreakChars = " ." + System.getProperty("line.separator");
+        private var lineSeparator: String = System.getProperty("line.separator")
+        private var threshold = 4
+        private var maxNumKeywords = 1
+        private var explicitChars = "@"
+        private var wordBreakChars = " ." + System.getProperty("line.separator")
 
-        @NonNull
-        public Builder setLineSeparator(@NonNull String lineSeparator) {
-            this.lineSeparator = lineSeparator;
-            return this;
+        fun setLineSeparator(lineSeparator: String): Builder {
+            this.lineSeparator = lineSeparator
+            return this
         }
 
-        @NonNull
-        public Builder setThreshold(int threshold) {
-            this.threshold = threshold;
-            return this;
+        fun setThreshold(threshold: Int): Builder {
+            this.threshold = threshold
+            return this
         }
 
-        @NonNull
-        public Builder setMaxNumKeywords(int maxNumKeywords) {
-            this.maxNumKeywords = maxNumKeywords;
-            return this;
+        fun setMaxNumKeywords(maxNumKeywords: Int): Builder {
+            this.maxNumKeywords = maxNumKeywords
+            return this
         }
 
-        @NonNull
-        public Builder setExplicitChars(@NonNull String explicitChars) {
-            this.explicitChars = explicitChars;
-            return this;
+        fun setExplicitChars(explicitChars: String): Builder {
+            this.explicitChars = explicitChars
+            return this
         }
 
-        @NonNull
-        public Builder setWordBreakChars(@NonNull String wordBreakChars) {
-            this.wordBreakChars = wordBreakChars;
-            return this;
+        fun setWordBreakChars(wordBreakChars: String): Builder {
+            this.wordBreakChars = wordBreakChars
+            return this
         }
 
-        @NonNull
-        public WordTokenizerConfig build() {
-            return new WordTokenizerConfig(lineSeparator, threshold, maxNumKeywords, explicitChars, wordBreakChars);
+        fun build(): WordTokenizerConfig {
+            return WordTokenizerConfig(
+                lineSeparator,
+                threshold,
+                maxNumKeywords,
+                explicitChars,
+                wordBreakChars
+            )
         }
     }
 }

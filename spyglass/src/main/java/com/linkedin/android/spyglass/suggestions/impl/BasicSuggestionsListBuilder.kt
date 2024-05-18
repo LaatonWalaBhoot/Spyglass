@@ -11,74 +11,61 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.suggestions.impl
 
-package com.linkedin.android.spyglass.suggestions.impl;
-
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
-import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
-import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import android.R
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult
+import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder
 
 /**
- * Basic implementation of the {@link SuggestionsListBuilder} interface.
+ * Basic implementation of the [SuggestionsListBuilder] interface.
  */
-public class BasicSuggestionsListBuilder implements SuggestionsListBuilder {
-
+open class BasicSuggestionsListBuilder : SuggestionsListBuilder {
     /**
      * {@inheritDoc}
      */
-    @Override
-    @NonNull
-    public List<Suggestible> buildSuggestions(final @NonNull Map<String, SuggestionsResult> latestResults,
-                                              final @NonNull String currentTokenString) {
-        List<Suggestible> results = new ArrayList<>();
-        for (Map.Entry<String, SuggestionsResult> entry : latestResults.entrySet()) {
-            SuggestionsResult result = entry.getValue();
-            if (currentTokenString.equalsIgnoreCase(result.getQueryToken().getTokenString())) {
-                results.addAll(result.getSuggestions());
+    override fun buildSuggestions(
+        latestResults: Map<String, SuggestionsResult>,
+        currentTokenString: String
+    ): List<Suggestible> {
+        val results: MutableList<Suggestible> = ArrayList()
+        for ((_, result) in latestResults) {
+            if (currentTokenString.equals(result.queryToken.tokenString, ignoreCase = true)) {
+                results.addAll(result.suggestions)
             }
         }
-        return results;
+        return results
     }
 
     /**
      * {@inheritDoc}
      */
-    @NonNull
-    @Override
-    public View getView(final @NonNull Suggestible suggestion,
-                        @Nullable View convertView,
-                        @Nullable ViewGroup parent,
-                        final @NonNull Context context,
-                        final @NonNull LayoutInflater inflater,
-                        final @NonNull Resources resources) {
-        View view;
-        if (convertView == null) {
-            view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-        } else {
-            view = convertView;
+    override fun getView(
+        suggestion: Suggestible,
+        convertView: View?,
+        parent: ViewGroup?,
+        context: Context,
+        inflater: LayoutInflater,
+        resources: Resources
+    ): View {
+        val view =
+            convertView ?: inflater.inflate(R.layout.simple_list_item_1, parent, false)
+
+        if (view is TextView) {
+            val text = view
+            text.text = suggestion.suggestiblePrimaryText
+            text.setTextColor(Color.BLACK)
+            text.setBackgroundColor(Color.WHITE)
         }
 
-        if (view instanceof TextView) {
-            TextView text = (TextView) view;
-            text.setText(suggestion.getSuggestiblePrimaryText());
-            text.setTextColor(Color.BLACK);
-            text.setBackgroundColor(Color.WHITE);
-        }
-
-        return view;
+        return view
     }
-
 }

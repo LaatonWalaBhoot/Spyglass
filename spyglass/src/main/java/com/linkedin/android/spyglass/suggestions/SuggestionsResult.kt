@@ -11,47 +11,25 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.suggestions
 
-package com.linkedin.android.spyglass.suggestions;
-
-import androidx.annotation.NonNull;
-
-import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
-import com.linkedin.android.spyglass.tokenization.QueryToken;
-
-import java.util.List;
+import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible
+import com.linkedin.android.spyglass.tokenization.QueryToken
 
 /**
  * Class representing the results of a query for suggestions.
  */
-public class SuggestionsResult {
-
-    private final QueryToken mQueryToken;
-    private final List<? extends Suggestible> mSuggestions;
-
-    public SuggestionsResult(@NonNull QueryToken queryToken,
-                             @NonNull List<? extends Suggestible> suggestions) {
-        mQueryToken = queryToken;
-        mSuggestions = suggestions;
-    }
-
+class SuggestionsResult(
     /**
-     * Get the {@link QueryToken} used to generate the mention suggestions.
+     * Get the [QueryToken] used to generate the mention suggestions.
      *
-     * @return a {@link QueryToken}
+     * @return a [QueryToken]
      */
-    @NonNull
-    public QueryToken getQueryToken() {
-        return mQueryToken;
-    }
-
+    val queryToken: QueryToken,
     /**
-     * Get the list of mention suggestions corresponding to the {@link QueryToken}.
+     * Get the list of mention suggestions corresponding to the [QueryToken].
      *
-     * @return a List of {@link com.linkedin.android.spyglass.suggestions.interfaces.Suggestible} representing mention suggestions
+     * @return a List of [com.linkedin.android.spyglass.suggestions.interfaces.Suggestible] representing mention suggestions
      */
-    @NonNull
-    public List<? extends Suggestible> getSuggestions() {
-        return mSuggestions;
-    }
-}
+    val suggestions: List<Suggestible>
+)

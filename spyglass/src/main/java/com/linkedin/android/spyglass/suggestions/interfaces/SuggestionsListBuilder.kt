@@ -11,58 +11,51 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.suggestions.interfaces
 
-package com.linkedin.android.spyglass.suggestions.interfaces;
-
-import android.content.Context;
-import android.content.res.Resources;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
-
-import java.util.List;
-import java.util.Map;
+import android.content.Context
+import android.content.res.Resources
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult
 
 /**
  * Interface that defines the list of suggestions to display and how to display them.
  */
-public interface SuggestionsListBuilder {
-
+interface SuggestionsListBuilder {
     /**
-     * Create the list of suggestions from the newest {@link SuggestionsResult} received for every bucket. This
+     * Create the list of suggestions from the newest [SuggestionsResult] received for every bucket. This
      * allows you to control the exact order of the suggestions.
      *
-     * @param latestResults      newest {@link SuggestionsResult} for every bucket
+     * @param latestResults      newest [SuggestionsResult] for every bucket
      * @param currentTokenString the most recent token, as typed by the user
      *
-     * @return a list of {@link Suggestible} representing the suggestions in proper order
+     * @return a list of [Suggestible] representing the suggestions in proper order
      */
-    @NonNull
-    List<Suggestible> buildSuggestions(final @NonNull Map<String, SuggestionsResult> latestResults,
-                                       final @NonNull String currentTokenString);
+    fun buildSuggestions(
+        latestResults: Map<String?, SuggestionsResult?>,
+        currentTokenString: String
+    ): List<Suggestible?>
 
     /**
      * Build a basic view for the given object.
      *
-     * @param suggestion  object implementing {@link Suggestible} to build a view for
+     * @param suggestion  object implementing [Suggestible] to build a view for
      * @param convertView the old view to reuse, if possible
      * @param parent      parent view
-     * @param context     current {@link android.content.Context} within the adapter
-     * @param inflater    {@link android.view.LayoutInflater} to use
-     * @param resources   {@link android.content.res.Resources} to use
+     * @param context     current [android.content.Context] within the adapter
+     * @param inflater    [android.view.LayoutInflater] to use
+     * @param resources   [android.content.res.Resources] to use
      *
-     * @return a view for the corresponding {@link Suggestible} object in the adapter
+     * @return a view for the corresponding [Suggestible] object in the adapter
      */
-    @NonNull
-    View getView(final @NonNull Suggestible suggestion,
-                 @Nullable View convertView,
-                 @Nullable ViewGroup parent,
-                 final @NonNull Context context,
-                 final @NonNull LayoutInflater inflater,
-                 final @NonNull Resources resources);
-
+    fun getView(
+        suggestion: Suggestible,
+        convertView: View?,
+        parent: ViewGroup?,
+        context: Context,
+        inflater: LayoutInflater,
+        resources: Resources
+    ): View
 }

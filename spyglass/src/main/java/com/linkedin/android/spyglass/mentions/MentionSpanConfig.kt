@@ -11,78 +11,68 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.mentions
 
-package com.linkedin.android.spyglass.mentions;
-
-import android.graphics.Color;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
+import android.graphics.Color
+import androidx.annotation.ColorInt
 
 /**
- * Class used to configure various options for the {@link MentionSpan}. Instantiate using the
- * {@link MentionSpanConfig.Builder} class.
+ * Class used to configure various options for the [MentionSpan]. Instantiate using the
+ * [MentionSpanConfig.Builder] class.
  */
-public class MentionSpanConfig {
-
-    @ColorInt public final int NORMAL_TEXT_COLOR;
-    @ColorInt public final int NORMAL_TEXT_BACKGROUND_COLOR;
-    @ColorInt public final int SELECTED_TEXT_COLOR;
-    @ColorInt public final int SELECTED_TEXT_BACKGROUND_COLOR;
-
-    MentionSpanConfig(@ColorInt final int normalTextColor,
-                      @ColorInt final int normalTextBackgroundColor,
-                      @ColorInt final int selectedTextColor,
-                      @ColorInt final int selectedTextBackgroundColor) {
-        this.NORMAL_TEXT_COLOR = normalTextColor;
-        this.NORMAL_TEXT_BACKGROUND_COLOR = normalTextBackgroundColor;
-        this.SELECTED_TEXT_COLOR = selectedTextColor;
-        this.SELECTED_TEXT_BACKGROUND_COLOR = selectedTextBackgroundColor;
-    }
-
-    public static class Builder {
-
+class MentionSpanConfig internal constructor(
+    @field:ColorInt @param:ColorInt val NORMAL_TEXT_COLOR: Int,
+    @field:ColorInt @param:ColorInt val NORMAL_TEXT_BACKGROUND_COLOR: Int,
+    @field:ColorInt @param:ColorInt val SELECTED_TEXT_COLOR: Int,
+    @field:ColorInt @param:ColorInt val SELECTED_TEXT_BACKGROUND_COLOR: Int
+) {
+    class Builder {
         // Default colors
-        @ColorInt private int normalTextColor = Color.parseColor("#00a0dc");
-        @ColorInt private int normalTextBackgroundColor = Color.TRANSPARENT;
-        @ColorInt private int selectedTextColor = Color.WHITE;
-        @ColorInt private int selectedTextBackgroundColor = Color.parseColor("#0077b5");
+        @ColorInt
+        private var normalTextColor = Color.parseColor("#00a0dc")
 
-        @NonNull
-        public Builder setMentionTextColor(@ColorInt int normalTextColor) {
+        @ColorInt
+        private var normalTextBackgroundColor = Color.TRANSPARENT
+
+        @ColorInt
+        private var selectedTextColor = Color.WHITE
+
+        @ColorInt
+        private var selectedTextBackgroundColor = Color.parseColor("#0077b5")
+
+        fun setMentionTextColor(@ColorInt normalTextColor: Int): Builder {
             if (normalTextColor != -1) {
-                this.normalTextColor = normalTextColor;
+                this.normalTextColor = normalTextColor
             }
-            return this;
+            return this
         }
 
-        @NonNull
-        public Builder setMentionTextBackgroundColor(@ColorInt int normalTextBackgroundColor) {
+        fun setMentionTextBackgroundColor(@ColorInt normalTextBackgroundColor: Int): Builder {
             if (normalTextBackgroundColor != -1) {
-                this.normalTextBackgroundColor = normalTextBackgroundColor;
+                this.normalTextBackgroundColor = normalTextBackgroundColor
             }
-            return this;
+            return this
         }
 
-        @NonNull
-        public Builder setSelectedMentionTextColor(@ColorInt int selectedTextColor) {
+        fun setSelectedMentionTextColor(@ColorInt selectedTextColor: Int): Builder {
             if (selectedTextColor != -1) {
-                this.selectedTextColor = selectedTextColor;
+                this.selectedTextColor = selectedTextColor
             }
-            return this;
+            return this
         }
 
-        @NonNull
-        public Builder setSelectedMentionTextBackgroundColor(@ColorInt int selectedTextBackgroundColor) {
+        fun setSelectedMentionTextBackgroundColor(@ColorInt selectedTextBackgroundColor: Int): Builder {
             if (selectedTextBackgroundColor != -1) {
-                this.selectedTextBackgroundColor = selectedTextBackgroundColor;
+                this.selectedTextBackgroundColor = selectedTextBackgroundColor
             }
-            return this;
+            return this
         }
 
-        @NonNull
-        public MentionSpanConfig build() {
-            return new MentionSpanConfig(normalTextColor, normalTextBackgroundColor,
-                                         selectedTextColor, selectedTextBackgroundColor);
+        fun build(): MentionSpanConfig {
+            return MentionSpanConfig(
+                normalTextColor, normalTextBackgroundColor,
+                selectedTextColor, selectedTextBackgroundColor
+            )
         }
     }
 }

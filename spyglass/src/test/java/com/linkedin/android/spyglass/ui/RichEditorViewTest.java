@@ -84,18 +84,18 @@ public class RichEditorViewTest {
         Mentionable mention2 = new TestMention("Deepank Gupta");
         MentionSpan span2 = new MentionSpan(mention2);
 
-        mRichEditor.getText().setSpan(span1, 14, 14 + mention1.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mRichEditor.getText().setSpan(span2, 30, 30 + mention2.getSuggestiblePrimaryText().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mRichEditor.getText().setSpan(span1, 14, 14 + mention1.suggestiblePrimaryText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mRichEditor.getText().setSpan(span2, 30, 30 + mention2.suggestiblePrimaryText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         List<MentionSpan> spans = mRichEditor.getMentionSpans();
 
         assertEquals(2, spans.size());
-        Mentionable result1 = spans.get(0).getMention();
-        Mentionable result2 = spans.get(1).getMention();
+        Mentionable result1 = spans.get(0).mention;
+        Mentionable result2 = spans.get(1).mention;
 
-        assertEquals(mention1.getSuggestiblePrimaryText(), result1.getSuggestiblePrimaryText());
-        assertEquals(mention1.getSuggestiblePrimaryText(), "Shoulong Li");
-        assertEquals(mention2.getSuggestiblePrimaryText(), result2.getSuggestiblePrimaryText());
-        assertEquals(mention2.getSuggestiblePrimaryText(), "Deepank Gupta");
+        assertEquals(mention1.suggestiblePrimaryText, result1.suggestiblePrimaryText);
+        assertEquals(mention1.suggestiblePrimaryText, "Shoulong Li");
+        assertEquals(mention2.suggestiblePrimaryText, result2.suggestiblePrimaryText);
+        assertEquals(mention2.suggestiblePrimaryText, "Deepank Gupta");
     }
 
     @Test

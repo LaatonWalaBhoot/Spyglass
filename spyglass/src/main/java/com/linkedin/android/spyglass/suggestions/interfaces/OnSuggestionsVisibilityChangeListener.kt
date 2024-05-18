@@ -11,18 +11,16 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.suggestions.interfaces
 
-package com.linkedin.android.spyglass.suggestions.interfaces;
-
-public interface OnSuggestionsVisibilityChangeListener {
+interface OnSuggestionsVisibilityChangeListener {
+    /**
+     * Called when the suggestion list in the [com.linkedin.android.spyglass.ui.RichEditorView] is displayed.
+     */
+    fun onSuggestionsDisplayed()
 
     /**
-     * Called when the suggestion list in the {@link com.linkedin.android.spyglass.ui.RichEditorView} is displayed.
+     * Called when the suggestion list in the [com.linkedin.android.spyglass.ui.RichEditorView] is hidden.
      */
-    void onSuggestionsDisplayed();
-
-    /**
-     * Called when the suggestion list in the {@link com.linkedin.android.spyglass.ui.RichEditorView} is hidden.
-     */
-    void onSuggestionsHidden();
+    fun onSuggestionsHidden()
 }

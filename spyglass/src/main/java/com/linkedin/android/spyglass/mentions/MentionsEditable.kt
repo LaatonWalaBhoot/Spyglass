@@ -11,50 +11,36 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.mentions
 
-package com.linkedin.android.spyglass.mentions;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.CharacterStyle;
-import android.util.Log;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.linkedin.android.spyglass.ui.MentionsEditText;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import android.os.Parcel
+import android.os.Parcelable
+import android.text.Editable
+import android.text.Selection
+import android.text.SpannableStringBuilder
+import android.text.style.CharacterStyle
+import android.util.Log
+import com.linkedin.android.spyglass.mentions.MentionSpan
+import com.linkedin.android.spyglass.ui.MentionsEditText
+import java.util.Arrays
 
 /**
- * Custom {@link Editable} containing methods specifically regarding mentions in a {@link Spanned} string object. Used
- * specifically within the {@link MentionsEditText}.
+ * Custom [Editable] containing methods specifically regarding mentions in a [Spanned] string object. Used
+ * specifically within the [MentionsEditText].
  */
-public class MentionsEditable extends SpannableStringBuilder implements Parcelable {
+class MentionsEditable : SpannableStringBuilder, Parcelable {
+    constructor(text: CharSequence) : super(text)
 
-    public MentionsEditable(@NonNull CharSequence text) {
-        super(text);
-    }
+    constructor(text: CharSequence, start: Int, end: Int) : super(text, start, end)
 
-    public MentionsEditable(@NonNull CharSequence text, int start, int end) {
-        super(text, start, end);
-    }
-
-    public MentionsEditable(@NonNull Parcel in) {
-        super(in.readString());
-        int length = in.readInt();
+    constructor(`in`: Parcel) : super(`in`.readString()) {
+        val length = `in`.readInt()
         if (length > 0) {
-            for (int index = 0; index < length; index++) {
-                int start = in.readInt();
-                int end = in.readInt();
-                MentionSpan span = new MentionSpan(in);
-                setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            for (index in 0 until length) {
+                val start = `in`.readInt()
+                val end = `in`.readInt()
+                val span = MentionSpan(`in`)
+                setSpan(span, start, end, SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -62,179 +48,180 @@ public class MentionsEditable extends SpannableStringBuilder implements Parcelab
     // --------------------------------------------------
     // Overrides
     // --------------------------------------------------
-
-    @Override
-    public void setSpan(Object what, int start, int end, int flags) {
+    override fun setSpan(what: Any, start: Int, end: Int, flags: Int) {
         // Do not add any spans that affect the character appearance of a mention (i.e. they overlap
         // with a MentionSpan). This helps prevent mentions from having a red underline due to the spell
         // checker. Note: SuggestionSpan was added in ICS, and different keyboards may use other kinds
         // of spans (i.e. the Motorola SpellCheckerMarkupSpan). Therefore, we cannot just filter out
         // SuggestionSpans, but rather, any span that would change the appearance of our MentionSpans.
-        if (what instanceof CharacterStyle) {
-            MentionSpan[] mentionSpans = getSpans(start, end, MentionSpan.class);
-            if (mentionSpans != null && mentionSpans.length > 0) {
-                return;
+        var start = start
+        var end = end
+        if (what is CharacterStyle) {
+            val mentionSpans = getSpans(start, end, MentionSpan::class.java)
+            if (mentionSpans != null && mentionSpans.size > 0) {
+                return
             }
         }
 
         // Ensure that the start and end points are set at zero initially
         // Note: This issue was seen on a Gingerbread device (start and end were both -1) and
         // prevents the device from crashing.
-        if ((what == Selection.SELECTION_START || what == Selection.SELECTION_END) && length() == 0) {
-            start = 0;
-            end = 0;
+        if ((what === Selection.SELECTION_START || what === Selection.SELECTION_END) && length == 0) {
+            start = 0
+            end = 0
         }
 
         // For added safety, check that the start and end indices are valid
-        if (start >= 0 && end >= start && end <= length()) {
-            super.setSpan(what, start, end, flags);
+        if (start >= 0 && end >= start && end <= length) {
+            super.setSpan(what, start, end, flags)
         } else {
-            Log.w(getClass().getName(),
-                  "Attempted to set span at invalid indices, start=" + start + ", end=" + end);
+            Log.w(
+                javaClass.name,
+                "Attempted to set span at invalid indices, start=$start, end=$end"
+            )
         }
     }
 
-    @NonNull
-    @Override
-    public SpannableStringBuilder replace(int start, int end, CharSequence tb, int tbstart, int tbend) {
+    override fun replace(
+        start: Int,
+        end: Int,
+        tb: CharSequence,
+        tbstart: Int,
+        tbend: Int
+    ): SpannableStringBuilder {
         // On certain software keyboards, the editor appears to append a word minus the last character when it is really
         // trying to just delete the last character. Until we can figure out the root cause of this issue, the following
         // code remaps this situation to do a proper delete.
         //
         // More details: https://github.com/linkedin/Spyglass/issues/105#issuecomment-674751603
-        if (start == end && start - tbend - 1 >= 0 && tb.length() > 1) {
-            String insertString = tb.subSequence(tbstart, tbend).toString();
-            int prevStart = start - tbend - 1;
-            int prevEnd = start - 1;
-            String prevString = subSequence(prevStart, prevEnd).toString();
-            MentionSpan[] prevSpans = getSpans(prevStart, prevEnd, MentionSpan.class);
+        if (start == end && start - tbend - 1 >= 0 && tb.length > 1) {
+            val insertString = tb.subSequence(tbstart, tbend).toString()
+            val prevStart = start - tbend - 1
+            val prevEnd = start - 1
+            val prevString = subSequence(prevStart, prevEnd).toString()
+            val prevSpans = getSpans(prevStart, prevEnd, MentionSpan::class.java)
 
             // If the insert string matches the previous string and the previous string contains a mention, then
             // we will just delete the previous character instead of appending the word.
-            if (insertString.equals(prevString) && prevSpans.length > 0) {
-                return super.replace(start - 1, start, "", 0, 0);
+            if (insertString == prevString && prevSpans.size > 0) {
+                return super.replace(start - 1, start, "", 0, 0)
             }
         }
 
-        return super.replace(start, end, tb, tbstart, tbend);
+        return super.replace(start, end, tb, tbstart, tbend)
     }
 
     // --------------------------------------------------
     // Custom Public Methods
     // --------------------------------------------------
-
     /**
-     * Implementation of {@link String#trim()} for an {@link Editable}.
+     * Implementation of [String.trim] for an [Editable].
      *
-     * @return a new {@link MentionsEditable} with whitespace characters removed from the beginning and the end
+     * @return a new [MentionsEditable] with whitespace characters removed from the beginning and the end
      */
-    @NonNull
-    public MentionsEditable trim() {
+    fun trim(): MentionsEditable {
         // Delete beginning spaces
-        while (length() > 0 && Character.isWhitespace(charAt(0))) {
-            delete(0, 1);
+        while (length > 0 && Character.isWhitespace(get(0))) {
+            delete(0, 1)
         }
         // Delete ending spaces
-        int len = length();
-        while (len > 0 && Character.isWhitespace(charAt(len - 1))) {
-            delete(len - 1, len);
+        var len = length
+        while (len > 0 && Character.isWhitespace(get(len - 1))) {
+            delete(len - 1, len)
             // Note: we must reset len this way after delete to avoid IndexOutOfBoundsException crashes similar to what we saw
             // happening with certain keyboards and {@link MentionsEditable#replace(int, int, CharSequence, int, int)}.
-            len = length();
+            len = length
         }
-        return new MentionsEditable(this, 0, length());
+        return MentionsEditable(this, 0, length)
     }
 
-    @NonNull
-    public List<MentionSpan> getMentionSpans() {
-        MentionSpan[] mentionSpans = getSpans(0, length(), MentionSpan.class);
-        return (mentionSpans != null) ? Arrays.asList(mentionSpans) : new ArrayList<MentionSpan>();
-    }
+    val mentionSpans: List<MentionSpan>
+        get() {
+            val mentionSpans = getSpans(0, length, MentionSpan::class.java)
+            return if ((mentionSpans != null)) Arrays.asList(*mentionSpans) else ArrayList()
+        }
 
     /**
-     * Given an integer offset, return the {@link MentionSpan} located at the offset in the text of the
-     * {@link android.widget.EditText}, if it exists. Otherwise, return null.
+     * Given an integer offset, return the [MentionSpan] located at the offset in the text of the
+     * [android.widget.EditText], if it exists. Otherwise, return null.
      *
      * @param index integer offset in text
      *
-     * @return a {@link MentionSpan} located at index in text, or null
+     * @return a [MentionSpan] located at index in text, or null
      */
-    @Nullable
-    public MentionSpan getMentionSpanAtOffset(int index) {
-        MentionSpan[] spans = getSpans(index, index, MentionSpan.class);
-        return (spans != null && spans.length > 0) ? spans[0] : null;
+    fun getMentionSpanAtOffset(index: Int): MentionSpan? {
+        val spans = getSpans(index, index, MentionSpan::class.java)
+        return if ((spans != null && spans.size > 0)) spans[0] else null
     }
 
     /**
-     * Get the {@link MentionSpan} starting at the given index in the text, or null if there is no {@link MentionSpan}
+     * Get the [MentionSpan] starting at the given index in the text, or null if there is no [MentionSpan]
      * starting at that index.
      *
      * @param index integer offset in text
      *
-     * @return a {@link MentionSpan} starting at index in text, or null
+     * @return a [MentionSpan] starting at index in text, or null
      */
-    @Nullable
-    public MentionSpan getMentionSpanStartingAt(int index) {
-        MentionSpan[] spans = getSpans(0, length(), MentionSpan.class);
+    fun getMentionSpanStartingAt(index: Int): MentionSpan? {
+        val spans = getSpans(0, length, MentionSpan::class.java)
         if (spans != null) {
-            for (MentionSpan span : spans) {
+            for (span in spans) {
                 if (getSpanStart(span) == index) {
-                    return span;
+                    return span
                 }
             }
         }
-        return null;
+        return null
     }
 
     /**
-     * Get the {@link MentionSpan} ending at the given index in the text, or null if there is no {@link MentionSpan}
+     * Get the [MentionSpan] ending at the given index in the text, or null if there is no [MentionSpan]
      * ending at that index.
      *
      * @param index integer offset in text
      *
-     * @return a {@link MentionSpan} ending at index in text, or null
+     * @return a [MentionSpan] ending at index in text, or null
      */
-    @Nullable
-    public MentionSpan getMentionSpanEndingAt(int index) {
-        MentionSpan[] spans = getSpans(0, length(), MentionSpan.class);
+    fun getMentionSpanEndingAt(index: Int): MentionSpan? {
+        val spans = getSpans(0, length, MentionSpan::class.java)
         if (spans != null) {
-            for (MentionSpan span : spans) {
+            for (span in spans) {
                 if (getSpanEnd(span) == index) {
-                    return span;
+                    return span
                 }
             }
         }
-        return null;
+        return null
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    override fun describeContents(): Int {
+        return 0
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(toString());
-        int length = getMentionSpans().size();
-        dest.writeInt(length);
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(toString())
+        val length = mentionSpans.size
+        dest.writeInt(length)
         if (length > 0) {
-            for (int index = 0; index < length; index++) {
-                MentionSpan span = getMentionSpans().get(index);
-                dest.writeInt(getSpanStart(span));
-                dest.writeInt(getSpanEnd(span));
-                span.writeToParcel(dest, flags);
+            for (index in 0 until length) {
+                val span = mentionSpans[index]
+                dest.writeInt(getSpanStart(span))
+                dest.writeInt(getSpanEnd(span))
+                span.writeToParcel(dest, flags)
             }
         }
     }
 
-    public static final Parcelable.Creator<MentionsEditable> CREATOR
-            = new Parcelable.Creator<MentionsEditable>() {
-        public MentionsEditable createFromParcel(Parcel in) {
-            return new MentionsEditable(in);
-        }
+    companion object {
+        val CREATOR: Parcelable.Creator<MentionsEditable> =
+            object : Parcelable.Creator<MentionsEditable> {
+                override fun createFromParcel(`in`: Parcel): MentionsEditable? {
+                    return MentionsEditable(`in`)
+                }
 
-        public MentionsEditable[] newArray(int size) {
-            return new MentionsEditable[size];
-        }
-    };
+                override fun newArray(size: Int): Array<MentionsEditable?> {
+                    return arrayOfNulls(size)
+                }
+            }
+    }
 }

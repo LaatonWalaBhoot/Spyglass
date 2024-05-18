@@ -270,7 +270,7 @@ public class MentionsEditText extends EditText implements TokenSource {
         // If so, avoid the current prefix
         if (mAvoidPrefixOnTap
                 && mSuggestionsVisibilityManager != null
-                && mSuggestionsVisibilityManager.isDisplayingSuggestions()) {
+                && mSuggestionsVisibilityManager.isDisplayingSuggestions) {
             mSuggestionsVisibilityManager.displaySuggestions(false);
             String keywords = getCurrentKeywordsString();
             String[] words = keywords.split(" ");
@@ -517,8 +517,8 @@ public class MentionsEditText extends EditText implements TokenSource {
         MentionSpan[] allSpans = text.getSpans(0, text.length(), MentionSpan.class);
         for (MentionSpan span : allSpans) {
             // Deselect span if the cursor is not on the span.
-            if (span.isSelected() && (index < text.getSpanStart(span) || index > text.getSpanEnd(span))) {
-                span.setSelected(false);
+            if (span.isSelected && (index < text.getSpanStart(span) || index > text.getSpanEnd(span))) {
+                span.isSelected = false;
                 updateSpan(span);
             }
         }
@@ -687,9 +687,9 @@ public class MentionsEditText extends EditText implements TokenSource {
 
             // Cursor was directly behind a span and was moved back one, so delete it if selected,
             // or select it if not already selected
-            if (prevSpan.isSelected()) {
-                Mentionable mention = prevSpan.getMention();
-                Mentionable.MentionDeleteStyle deleteStyle = mention.getDeleteStyle();
+            if (prevSpan.isSelected) {
+                Mentionable mention = prevSpan.mention;
+                Mentionable.MentionDeleteStyle deleteStyle = mention.deleteStyle;
                 Mentionable.MentionDisplayMode displayMode = prevSpan.getDisplayMode();
                 // Determine new DisplayMode given previous DisplayMode and MentionDeleteStyle
                 if (deleteStyle == Mentionable.MentionDeleteStyle.PARTIAL_NAME_DELETE
@@ -700,7 +700,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                 }
             } else {
                 // Span was not selected, so select it
-                prevSpan.setSelected(true);
+                prevSpan.isSelected = true;
             }
 
             return true;
@@ -855,7 +855,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                         }
                         // Notify for partially deleted mentions.
                         if (mMentionWatchers.size() > 0 && displayMode == Mentionable.MentionDisplayMode.PARTIAL) {
-                            notifyMentionPartiallyDeletedWatchers(span.getMention(), name, start, end);
+                            notifyMentionPartiallyDeletedWatchers(span.mention, name, start, end);
                         }
                         spanAltered = true;
                     }
@@ -869,7 +869,7 @@ public class MentionsEditText extends EditText implements TokenSource {
                     text.delete(start, end);
                     setSelection(start);
                     if (hasListeners) {
-                        notifyMentionDeletedWatchers(span.getMention(), textBeforeDelete, start, end);
+                        notifyMentionDeletedWatchers(span.mention, textBeforeDelete, start, end);
                     }
                     spanAltered = true;
                     break;
@@ -959,8 +959,8 @@ public class MentionsEditText extends EditText implements TokenSource {
         Editable text = getText();
         MentionSpan[] spans = text.getSpans(0, text.length(), MentionSpan.class);
         for (MentionSpan span : spans) {
-            if (span.isSelected()) {
-                span.setSelected(false);
+            if (span.isSelected) {
+                span.isSelected = false;
                 updateSpan(span);
             }
         }
@@ -1007,7 +1007,7 @@ public class MentionsEditText extends EditText implements TokenSource {
     private void insertMentionInternal(@NonNull Mentionable mention, @NonNull Editable text, int start, int end) {
         // Insert the span into the editor
         MentionSpan mentionSpan = mentionSpanFactory.createMentionSpan(mention, mentionSpanConfig);
-        String name = mention.getSuggestiblePrimaryText();
+        String name = mention.suggestiblePrimaryText;
 
         mBlockCompletion = true;
         text.replace(start, end, name);

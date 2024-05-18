@@ -11,80 +11,56 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 */
+package com.linkedin.android.spyglass.tokenization
 
-package com.linkedin.android.spyglass.tokenization;
-
-import androidx.annotation.NonNull;
-
-import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
-import com.linkedin.android.spyglass.tokenization.interfaces.Tokenizer;
-
-import java.io.Serializable;
+import java.io.Serializable
 
 /**
- * Class that represents a token from a {@link Tokenizer} that can be used to query for suggestions.
- * <p>
+ * Class that represents a token from a [Tokenizer] that can be used to query for suggestions.
+ *
+ *
  * Note that if the query is explicit, the explicit character has not been removed from the start of the token string.
- * To get the string without any explicit character, use {@link #getKeywords()}.
+ * To get the string without any explicit character, use [.getKeywords].
  */
-public class QueryToken implements Serializable {
-
+class QueryToken(
+    /**
+     * @return query as typed by the user and detected by the [Tokenizer]
+     */
     // what the user typed, exactly, as detected by the tokenizer
-    private String mTokenString;
-
-    // if the query was explicit, then this was the character the user typed (otherwise, null char)
-    private char mExplicitChar = 0;
-
-    public QueryToken(@NonNull String tokenString) {
-        mTokenString = tokenString;
-    }
-
-    public QueryToken(@NonNull String tokenString, char explicitChar) {
-        this(tokenString);
-        mExplicitChar = explicitChar;
-    }
-
-    /**
-     * @return query as typed by the user and detected by the {@link Tokenizer}
-     */
-    @NonNull
-    public String getTokenString() {
-        return mTokenString;
-    }
-
-    /**
-     * Returns a String that should be used to perform the query. It is equivalent to the token string without an explicit
-     * character if it exists.
-     *
-     * @return one or more words that the {@link QueryTokenReceiver} should use for the query
-     */
-    @NonNull
-    public String getKeywords() {
-        return (mExplicitChar != 0) ? mTokenString.substring(1) : mTokenString;
-    }
-
+    val tokenString: String
+) : Serializable {
     /**
      * @return the explicit character used in the query, or the null character if the query is implicit
      */
-    public char getExplicitChar() {
-        return mExplicitChar;
+    // if the query was explicit, then this was the character the user typed (otherwise, null char)
+    var explicitChar: Char = 0.toChar()
+        private set
+
+    constructor(tokenString: String, explicitChar: Char) : this(tokenString) {
+        this.explicitChar = explicitChar
     }
 
-    /**
-     * @return true if the query is explicit
-     */
-    public boolean isExplicit() {
-        return mExplicitChar != 0;
+    val keywords: String
+        /**
+         * Returns a String that should be used to perform the query. It is equivalent to the token string without an explicit
+         * character if it exists.
+         *
+         * @return one or more words that the [QueryTokenReceiver] should use for the query
+         */
+        get() = if ((explicitChar.code != 0)) tokenString.substring(1) else tokenString
+
+    val isExplicit: Boolean
+        /**
+         * @return true if the query is explicit
+         */
+        get() = explicitChar.code != 0
+
+    override fun equals(o: Any?): Boolean {
+        val that = o as QueryToken?
+        return that != null && tokenString == that.tokenString
     }
 
-    @Override
-    public boolean equals(Object o) {
-        QueryToken that = (QueryToken) o;
-        return mTokenString != null && that != null && mTokenString.equals(that.getTokenString());
-    }
-
-    @Override
-    public int hashCode() {
-        return mTokenString.hashCode();
+    override fun hashCode(): Int {
+        return tokenString.hashCode()
     }
 }
